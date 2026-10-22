@@ -1,0 +1,23 @@
+CREATE TABLE `candidates` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`first_name` text NOT NULL,
+	`last_name` text NOT NULL,
+	`email` text NOT NULL,
+	`phone` text NOT NULL,
+	`city` text DEFAULT '' NOT NULL,
+	`study_year` text NOT NULL,
+	`school` text NOT NULL,
+	`speciality` text NOT NULL,
+	`desired_program` text NOT NULL,
+	`desired_start` text NOT NULL,
+	`motivation` text NOT NULL,
+	`process_stage` text NOT NULL,
+	`help_topics` text DEFAULT '[]' NOT NULL,
+	`help_details` text DEFAULT '' NOT NULL,
+	`appointment_preference` text DEFAULT '' NOT NULL,
+	`consent` integer NOT NULL,
+	`status` text DEFAULT 'nouvelle' NOT NULL,
+	`admin_notes` text DEFAULT '' NOT NULL,
+	`created_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	`updated_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
