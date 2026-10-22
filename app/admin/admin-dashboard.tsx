@@ -80,7 +80,7 @@ export default function AdminDashboard({ adminName }: { adminName: string }) {
     try {
       const response = await fetch("/api/admin/candidatures", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...adminMutationHeaders() },
         body: JSON.stringify({ id: next.id, status: next.status, adminNotes: next.adminNotes }),
       });
       const result = await response.json() as { error?: string };
@@ -118,7 +118,7 @@ export default function AdminDashboard({ adminName }: { adminName: string }) {
   }
 
   async function logout() {
-    await fetch("/api/admin/logout", { method: "POST" });
+    await fetch("/api/admin/logout", { method: "POST", headers: adminMutationHeaders() });
     window.location.assign("/admin");
   }
 
@@ -192,3 +192,4 @@ function safeTopics(value: string) { try { const parsed = JSON.parse(value); ret
 function formatDate(value: string) { const date = new Date(value.includes("T") ? value : `${value.replace(" ", "T")}Z`); return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat("fr-TN", { dateStyle: "long", timeStyle: "short" }).format(date); }
 function formatShortDate(value: string) { const date = new Date(value.includes("T") ? value : `${value.replace(" ", "T")}Z`); return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat("fr-TN", { day: "numeric", month: "short" }).format(date); }
 function statusClass(status: string) { return ({ "nouvelle": styles.statusNew, "à contacter": styles.statusContact, "rendez-vous pris": styles.statusMeeting, "dossier en cours": styles.statusProgress, "terminée": styles.statusDone } as Record<string, string>)[status] ?? styles.statusNew; }
+function adminMutationHeaders() { const value = document.cookie.split("; ").find((cookie) => cookie.startsWith("fransition_admin_csrf="))?.split("=")[1]; return value ? { "X-Fransition-CSRF": decodeURIComponent(value) } : {}; }

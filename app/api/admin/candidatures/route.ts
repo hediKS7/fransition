@@ -1,7 +1,7 @@
 import { desc, eq, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { candidates } from "@/db/schema";
-import { candidateStatuses, requireAdmin } from "@/lib/admin";
+import { candidateStatuses, requireAdmin, requireAdminMutation } from "@/lib/admin";
 
 export async function GET() {
   if (!await requireAdmin()) return Response.json({ error: "Accès non autorisé." }, { status: 403 });
@@ -10,7 +10,7 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
-  if (!await requireAdmin()) return Response.json({ error: "Accès non autorisé." }, { status: 403 });
+  if (!await requireAdminMutation(request)) return Response.json({ error: "Accès non autorisé." }, { status: 403 });
   try {
     const payload = await request.json() as { id?: unknown; status?: unknown; adminNotes?: unknown };
     const id = typeof payload.id === "number" ? payload.id : Number(payload.id);
