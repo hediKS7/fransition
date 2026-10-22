@@ -123,6 +123,15 @@ Replace the filename with the pending migration and `DB` with your D1 binding na
 - `npm run start`: preview the built Worker locally with D1/R2 support
 - `npm run db:generate`: generate Drizzle migrations after schema changes
 
+## Fransition admin access
+
+The `/admin` dashboard uses a password-protected session in production. Add these **secrets** in the Cloudflare Worker settings before using it:
+
+- `ADMIN_PASSWORD`: a strong password chosen by the site owner.
+- `ADMIN_SESSION_SECRET`: a different random value of at least 32 characters, used to sign login sessions.
+
+Do not commit either value to Git. After changing a secret, redeploy the Worker.
+
 When using the Sites plugin, follow its skill instructions for installation, builds, and publishing. These npm commands remain available for standalone use.
 
 The portable build runs Vinext directly without a host `timeout` command. The managed-linux build uses `scripts/build-verified.sh` and its existing `SITES_BUILD_TIMEOUT` setting.

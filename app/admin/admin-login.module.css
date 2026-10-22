@@ -1,0 +1,29 @@
+.form {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.form label {
+  display: grid;
+  gap: 7px;
+  color: #344576;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.form input {
+  width: 100%;
+  border: 1.5px solid var(--line);
+  border-radius: 11px;
+  outline: none;
+  background: #fbfcff;
+  color: var(--navy);
+  padding: 12px 13px;
+  font-size: 15px;
+}
+
+.form input:focus {
+  border-color: var(--coral);
+  box-shadow: 0 0 0 3px #ffe7e0;
+}
