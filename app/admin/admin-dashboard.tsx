@@ -48,6 +48,21 @@ export default function AdminDashboard({ adminName }: { adminName: string }) {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    const idleTimeout = 15 * 60 * 1000;
+    let timeout = window.setTimeout(() => { void logout(); }, idleTimeout);
+    const resetTimeout = () => {
+      window.clearTimeout(timeout);
+      timeout = window.setTimeout(() => { void logout(); }, idleTimeout);
+    };
+    const events = ["pointerdown", "keydown", "scroll", "touchstart"];
+    events.forEach((event) => window.addEventListener(event, resetTimeout, { passive: true }));
+    return () => {
+      window.clearTimeout(timeout);
+      events.forEach((event) => window.removeEventListener(event, resetTimeout));
+    };
+  }, []);
+
   const selected = useMemo(() => items.find((candidate) => candidate.id === selectedId) ?? null, [items, selectedId]);
   const filtered = useMemo(() => {
     const search = query.trim().toLocaleLowerCase("fr");

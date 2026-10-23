@@ -125,12 +125,12 @@ Replace the filename with the pending migration and `DB` with your D1 binding na
 
 ## Fransition admin access
 
-The `/admin` dashboard uses a password-protected session in production. Add these **secrets** in the Cloudflare Worker settings before using it:
+The `/admin` dashboard requires both the shared password and one of the two allowlisted e-mails (`hedi.ksentini@gmail.com` or `jlassisouhaa@gmail.com`). Add these **secrets** in the Cloudflare Worker settings before using it:
 
 - `ADMIN_PASSWORD`: a strong password chosen by the site owner.
 - `ADMIN_SESSION_SECRET`: a different random value of at least 32 characters, used to sign login sessions.
 
-Do not commit either value to Git. After changing a secret, redeploy the Worker.
+Do not commit either value to Git. The browser session ends when the browser closes and expires after eight hours; the dashboard also logs out after fifteen minutes without activity. After changing a secret, redeploy the Worker.
 
 When using the Sites plugin, follow its skill instructions for installation, builds, and publishing. These npm commands remain available for standalone use.
 

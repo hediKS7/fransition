@@ -4,13 +4,23 @@ import { cookies } from "next/headers";
 export const candidateStatuses = ["nouvelle", "à contacter", "rendez-vous pris", "dossier en cours", "terminée"] as const;
 export type CandidateStatus = (typeof candidateStatuses)[number];
 
+const allowedAdminEmails = new Set(["hedi.ksentini@gmail.com", "jlassisouhaa@gmail.com"]);
 export const ADMIN_SESSION_COOKIE = "fransition_admin_session";
 export const ADMIN_CSRF_COOKIE = "fransition_admin_csrf";
 export const adminSessionDuration = 60 * 60 * 8;
 const encoder = new TextEncoder();
+const decoder = new TextDecoder();
 
 function getAdminSecret() {
   return env.ADMIN_SESSION_SECRET?.trim() ?? "";
+}
+
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase();
+}
+
+function isAllowedAdminEmail(email: string) {
+  return allowedAdminEmails.has(normalizeEmail(email));
 }
 
 export function isAdminAuthConfigured() {
@@ -41,16 +51,17 @@ async function sign(payload: string) {
   return base64Url(new Uint8Array(await crypto.subtle.sign("HMAC", await sessionKey(), encoder.encode(payload))));
 }
 
-export async function verifyAdminPassword(password: string) {
-  if (!isAdminAuthConfigured()) return false;
+export async function verifyAdminLogin(email: string, password: string) {
+  if (!isAdminAuthConfigured() || !isAllowedAdminEmail(email)) return false;
   const expected = new Uint8Array(await crypto.subtle.sign("HMAC", await sessionKey(), encoder.encode(env.ADMIN_PASSWORD ?? "")));
   return crypto.subtle.verify("HMAC", await sessionKey(), expected, encoder.encode(password));
 }
 
-export async function createAdminSession() {
+export async function createAdminSession(email: string) {
   const expiresAt = Math.floor(Date.now() / 1000) + adminSessionDuration;
   const csrfToken = createCsrfToken();
-  const payload = `v2.${expiresAt}.${csrfToken}`;
+  const emailToken = base64Url(encoder.encode(normalizeEmail(email)));
+  const payload = `v3.${expiresAt}.${csrfToken}.${emailToken}`;
   return { token: `${payload}.${await sign(payload)}`, csrfToken };
 }
 
@@ -58,13 +69,15 @@ async function readAdminSession() {
   if (!isAdminAuthConfigured()) return null;
   const token = (await cookies()).get(ADMIN_SESSION_COOKIE)?.value;
   if (!token) return null;
-  const [version, expiryValue, csrfToken, signature, ...rest] = token.split(".");
+  const [version, expiryValue, csrfToken, emailToken, signature, ...rest] = token.split(".");
   const expiresAt = Number(expiryValue);
-  if (version !== "v2" || rest.length > 0 || !csrfToken || !signature || !Number.isSafeInteger(expiresAt) || expiresAt <= Math.floor(Date.now() / 1000)) return null;
+  if (version !== "v3" || rest.length > 0 || !csrfToken || !emailToken || !signature || !Number.isSafeInteger(expiresAt) || expiresAt <= Math.floor(Date.now() / 1000)) return null;
 
   try {
-    const valid = await crypto.subtle.verify("HMAC", await sessionKey(), fromBase64Url(signature), encoder.encode(`${version}.${expiryValue}.${csrfToken}`));
-    return valid ? { csrfToken, expiresAt } : null;
+    const email = normalizeEmail(decoder.decode(fromBase64Url(emailToken)));
+    if (!isAllowedAdminEmail(email)) return null;
+    const valid = await crypto.subtle.verify("HMAC", await sessionKey(), fromBase64Url(signature), encoder.encode(`${version}.${expiryValue}.${csrfToken}.${emailToken}`));
+    return valid ? { csrfToken, email } : null;
   } catch {
     return null;
   }
