@@ -15,6 +15,7 @@ type FormState = {
 const initialForm: FormState = { firstName: "", lastName: "", email: "", phone: "", city: "", studyYear: "", school: "", speciality: "", desiredProgram: "", desiredStart: "", motivation: "", processStage: "", helpTopics: [], helpDetails: "", appointmentPreference: "", consent: false };
 const steps = ["Ton profil", "Ton parcours", "Ton projet", "Tes démarches", "Ton aide"];
 const helpOptions = ["Choisir ma formation", "Comprendre Campus France", "Préparer mon dossier", "CV ou lettre de motivation", "Entretien Campus France", "Admission, logement ou visa"];
+const journeyPath = "M -20 475 C 185 525, 585 530, 825 405";
 
 export default function FransitionApp() {
   const [view, setView] = useState<"home" | "form" | "success">("home");
@@ -66,8 +67,13 @@ function HomeScreen({ onStart }: { onStart: () => void }) {
       <div className="hero-journey" aria-label="Le parcours de la Tunisie vers la France">
         <span className="star star-yellow">✦</span><span className="star star-coral">✦</span>
         <Image className="mascot-image" src="/fransition-logo.png" alt="Logo original de la mascotte Fransition diplômée" width={1080} height={1080} priority />
-        <div className="journey-line" aria-hidden="true" />
-        <Plane className="journey-plane" aria-hidden="true" size={31} strokeWidth={2.5} />
+        <svg className="journey-route" viewBox="0 0 800 538" preserveAspectRatio="none" aria-hidden="true">
+          <path className="journey-route-line" d={journeyPath} />
+          <g className="journey-plane">
+            <animateMotion dur="7s" repeatCount="indefinite" rotate="auto" path={journeyPath} />
+            <g transform="translate(-21 -21)"><Plane size={42} strokeWidth={2.5} /></g>
+          </g>
+        </svg>
         <span className="country-tag tunis">Tunisie</span><span className="country-tag france">France</span>
       </div>
     </section>
