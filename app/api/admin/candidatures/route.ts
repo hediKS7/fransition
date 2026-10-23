@@ -21,3 +21,22 @@ export async function PATCH(request: Request) {
     return Response.json({ ok: true });
   } catch (error) { console.error("Candidate update failed", error); return Response.json({ error: "Impossible d’enregistrer la mise à jour." }, { status: 500 }); }
 }
+
+export async function DELETE(request: Request) {
+  if (!await requireAdminMutation(request)) return Response.json({ error: "Accès non autorisé." }, { status: 403 });
+  try {
+    const payload = await request.json() as { id?: unknown; confirmation?: unknown };
+    const id = typeof payload.id === "number" ? payload.id : Number(payload.id);
+    const confirmation = typeof payload.confirmation === "string" ? payload.confirmation : "";
+    if (!Number.isInteger(id) || confirmation !== "SUPPRIMER") {
+      return Response.json({ error: "Confirmation de suppression invalide." }, { status: 400 });
+    }
+
+    const deleted = await getDb().delete(candidates).where(eq(candidates.id, id)).returning({ id: candidates.id });
+    if (!deleted.length) return Response.json({ error: "Cette candidature n’existe plus." }, { status: 404 });
+    return Response.json({ ok: true });
+  } catch (error) {
+    console.error("Candidate deletion failed", error);
+    return Response.json({ error: "Impossible de supprimer cette candidature." }, { status: 500 });
+  }
+}

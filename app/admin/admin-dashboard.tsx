@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import styles from "./admin-dashboard.module.css";
+import deleteStyles from "./admin-delete-dialog.module.css";
 
 type Candidate = {
   id: number;
@@ -26,6 +27,7 @@ type Candidate = {
 };
 
 const statuses = ["nouvelle", "à contacter", "rendez-vous pris", "dossier en cours", "terminée"];
+const deleteConfirmationWord = "SUPPRIMER";
 
 export default function AdminDashboard({ adminName }: { adminName: string }) {
   const [items, setItems] = useState<Candidate[]>([]);
@@ -36,6 +38,9 @@ export default function AdminDashboard({ adminName }: { adminName: string }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin/candidatures")
@@ -87,7 +92,7 @@ export default function AdminDashboard({ adminName }: { adminName: string }) {
   }
 
   async function persist(next: Candidate, successMessage: string) {
-    if (saving) return;
+    if (saving || deleting) return;
     const previous = items;
     setSaving(true);
     setMessage("");
@@ -117,6 +122,44 @@ export default function AdminDashboard({ adminName }: { adminName: string }) {
   function saveNotes() {
     if (!selected) return;
     void persist({ ...selected, adminNotes: notes }, "Notes enregistrées.");
+  }
+
+  function openDeleteDialog() {
+    if (!selected || saving || deleting) return;
+    setDeleteConfirmation("");
+    setDeleteDialogOpen(true);
+  }
+
+  function closeDeleteDialog() {
+    if (deleting) return;
+    setDeleteDialogOpen(false);
+    setDeleteConfirmation("");
+  }
+
+  async function deleteSelected() {
+    if (!selected || deleting || deleteConfirmation !== deleteConfirmationWord) return;
+    const candidateId = selected.id;
+    setDeleting(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/candidatures", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json", ...adminMutationHeaders() },
+        body: JSON.stringify({ id: candidateId, confirmation: deleteConfirmationWord }),
+      });
+      const result = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(result.error ?? "Impossible de supprimer cette candidature.");
+      setItems((current) => current.filter((candidate) => candidate.id !== candidateId));
+      setSelectedId(null);
+      setNotes("");
+      setDeleteDialogOpen(false);
+      setDeleteConfirmation("");
+      setMessage("Candidature supprimée définitivement.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Impossible de supprimer cette candidature.");
+    } finally {
+      setDeleting(false);
+    }
   }
 
   function exportCsv() {
@@ -182,15 +225,27 @@ export default function AdminDashboard({ adminName }: { adminName: string }) {
               <div><p className="section-label">Candidature #{selected.id}</p><h2>{selected.firstName} {selected.lastName}</h2><p>Reçue le {formatDate(selected.createdAt)}</p></div>
               <span className={`${styles.status} ${statusClass(selected.status)}`}>{selected.status}</span>
             </div>
-            <div className={styles.quickActions}><span>Faire avancer le dossier</span><div>{statuses.slice(1).map((status) => <button type="button" key={status} className={selected.status === status ? styles.actionSelected : ""} onClick={() => changeStatus(status)} disabled={saving}>{status}</button>)}</div></div>
+            <div className={styles.quickActions}><span>Faire avancer le dossier</span><div>{statuses.slice(1).map((status) => <button type="button" key={status} className={selected.status === status ? styles.actionSelected : ""} onClick={() => changeStatus(status)} disabled={saving || deleting}>{status}</button>)}</div></div>
             <div className={styles.contact}><a href={`mailto:${selected.email}`}>✉ <span>{selected.email}</span></a><a href={`tel:${selected.phone.replace(/\s/g, "")}`}>☏ <span>{selected.phone}</span></a></div>
             <div className={styles.detailGrid}><Info label="Parcours" value={`${selected.studyYear} · ${selected.speciality}`} /><Info label="Établissement" value={selected.school} /><Info label="Formation visée" value={`${selected.desiredProgram} · ${selected.desiredStart}`} /><Info label="Étape actuelle" value={selected.processStage} /><Info label="Motivation" value={selected.motivation} full /><Info label="Besoin d’aide" value={[...safeTopics(selected.helpTopics), selected.helpDetails].filter(Boolean).join(" — ") || "Non renseigné"} full /><Info label="Préférence de rendez-vous" value={selected.appointmentPreference || "Non renseignée"} full /></div>
             <label className={styles.notes}>Notes internes<textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Ajoute une note, une date d’appel ou la prochaine action…" /><small>Ces notes ne sont visibles que dans cet espace admin.</small></label>
-            <div className={styles.detailFooter}><span>{saving ? "Enregistrement…" : "Les modifications sont sauvegardées dans la candidature."}</span><button className="primary-button" type="button" onClick={saveNotes} disabled={saving}>Enregistrer les notes</button></div>
+            <div className={styles.detailFooter}><span>{saving ? "Enregistrement…" : "Les modifications sont sauvegardées dans la candidature."}</span><div className={deleteStyles.footerActions}><button className={deleteStyles.deleteButton} type="button" onClick={openDeleteDialog} disabled={saving || deleting}>Supprimer</button><button className="primary-button" type="button" onClick={saveNotes} disabled={saving || deleting}>Enregistrer les notes</button></div></div>
           </> : <div className={styles.noSelection}><span>✦</span><h2>Sélectionne une candidature</h2><p>Choisis un profil à gauche pour voir son parcours et gérer son suivi.</p></div>}
         </section>
       </div>}
     </section>
+    {deleteDialogOpen && selected && <div className={deleteStyles.backdrop} role="presentation" onMouseDown={closeDeleteDialog}>
+      <section className={deleteStyles.dialog} role="dialog" aria-modal="true" aria-labelledby="delete-candidate-title" onMouseDown={(event) => event.stopPropagation()}>
+        <div className={deleteStyles.icon} aria-hidden="true">!</div>
+        <p className={deleteStyles.eyebrow}>Action définitive</p>
+        <h2 id="delete-candidate-title">Supprimer cette candidature ?</h2>
+        <p>Tu vas supprimer définitivement le dossier de <b>{selected.firstName} {selected.lastName}</b>. Cette action ne peut pas être annulée.</p>
+        <form onSubmit={(event) => { event.preventDefault(); void deleteSelected(); }}>
+          <label>Pour confirmer, saisis <b>{deleteConfirmationWord}</b><input autoFocus value={deleteConfirmation} onChange={(event) => setDeleteConfirmation(event.target.value.toUpperCase())} placeholder={deleteConfirmationWord} spellCheck={false} autoComplete="off" /></label>
+          <div className={deleteStyles.actions}><button type="button" onClick={closeDeleteDialog} disabled={deleting}>Annuler</button><button type="submit" disabled={deleting || deleteConfirmation !== deleteConfirmationWord}>{deleting ? "Suppression…" : "Supprimer définitivement"}</button></div>
+        </form>
+      </section>
+    </div>}
   </main>;
 }
 
