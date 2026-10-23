@@ -2,6 +2,7 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 
 import Image from "next/image";
+import { Plane } from "lucide-react";
 import { FormEvent, useMemo, useState } from "react";
 
 type FormState = {
@@ -47,7 +48,34 @@ export default function FransitionApp() {
 function Brand({ compact = false }: { compact?: boolean }) { return <a className={`brand ${compact ? "brand-compact" : ""}`} href="/" aria-label="Fransition, accueil"><span><b>fran</b>sition</span>{!compact && <small>Étudier en France, depuis la Tunisie</small>}</a>; }
 
 function HomeScreen({ onStart }: { onStart: () => void }) {
-  return <main><header className="site-header shell"><Brand compact /><nav aria-label="Navigation principale"><a href="#apropos">À propos</a><a href="#mission">Qui sommes-nous ?</a><button className="header-cta" type="button" onClick={onStart}>Commencer</button></nav></header><section className="hero shell"><div className="hero-copy"><p className="kicker">✦ Étudier en France depuis la Tunisie</p><h1>De Tunis à la France,<br /><em>ton histoire</em><br />commence ici.</h1><p className="hero-text">Fransition t’aide à transformer ton projet d’études en un parcours clair, structuré et à ton image.</p><button className="primary-button" type="button" onClick={onStart}>Je commence mon projet →</button></div><div className="hero-journey" aria-label="Le parcours de la Tunisie vers la France"><span className="star star-yellow">✦</span><span className="star star-coral">✦</span><Image className="mascot-image" src="/fransition-logo.png" alt="Logo original de la mascotte Fransition diplômée" width={1080} height={1080} priority /><div className="journey-line" aria-hidden="true" /><span className="country-tag tunis">Tunisie</span><span className="country-tag france">France</span></div></section><section className="story-section" id="apropos"><div className="shell story-grid"><div><p className="section-label">À propos</p><h2>Un projet ambitieux ne devrait jamais avancer seul.</h2></div><p>Entre le choix d’une formation, les démarches Campus France, le dossier et le visa, chaque étape peut paraître difficile. Fransition rassemble les informations essentielles et t’accompagne, sans jargon, à ton rythme.</p></div></section><section className="mission-section shell" id="mission"><div className="mission-heading"><p className="section-label">Qui sommes-nous ?</p><h2>Un point de départ<br /><em>pour ton avenir.</em></h2></div><div className="mission-list"><article><span>01</span><h3>Comprendre</h3><p>Voir clairement les démarches et les possibilités qui correspondent à ton profil.</p></article><article><span>02</span><h3>Choisir</h3><p>Construire un projet d’études cohérent avec ta spécialité et tes ambitions.</p></article><article><span>03</span><h3>Avancer</h3><p>Obtenir une aide adaptée lorsque tu en as besoin, au bon moment.</p></article></div></section><section className="start-banner shell"><div><p className="section-label">Ton parcours commence ici</p><h2>Prêt(e) à faire avancer ton rêve ?</h2></div><button className="primary-button" type="button" onClick={onStart}>Remplir le formulaire →</button></section><footer><Brand /><span>© {new Date().getFullYear()} Fransition</span></footer></main>;
+  return <main>
+    <header className="site-header shell">
+      <Brand compact />
+      <nav aria-label="Navigation principale">
+        <a href="#apropos">À propos</a><a href="#mission">Qui sommes-nous ?</a>
+        <button className="header-cta" type="button" onClick={onStart}>Commencer</button>
+      </nav>
+    </header>
+    <section className="hero shell">
+      <div className="hero-copy">
+        <p className="kicker">✦ Étudier en France depuis la Tunisie</p>
+        <h1>De la Tunisie à la France,<br /><em>ton histoire</em><br />commence ici.</h1>
+        <p className="hero-text">Fransition t’aide à transformer ton projet d’études en un parcours clair, structuré et à ton image.</p>
+        <button className="primary-button" type="button" onClick={onStart}>Je commence mon projet →</button>
+      </div>
+      <div className="hero-journey" aria-label="Le parcours de la Tunisie vers la France">
+        <span className="star star-yellow">✦</span><span className="star star-coral">✦</span>
+        <Image className="mascot-image" src="/fransition-logo.png" alt="Logo original de la mascotte Fransition diplômée" width={1080} height={1080} priority />
+        <div className="journey-line" aria-hidden="true" />
+        <Plane className="journey-plane" aria-hidden="true" size={31} strokeWidth={2.5} />
+        <span className="country-tag tunis">Tunisie</span><span className="country-tag france">France</span>
+      </div>
+    </section>
+    <section className="story-section" id="apropos"><div className="shell story-grid"><div><p className="section-label">À propos</p><h2>Un projet ambitieux ne devrait jamais avancer seul.</h2></div><p>Entre le choix d’une formation, les démarches Campus France, le dossier et le visa, chaque étape peut paraître difficile. Fransition rassemble les informations essentielles et t’accompagne, sans jargon, à ton rythme.</p></div></section>
+    <section className="mission-section shell" id="mission"><div className="mission-heading"><p className="section-label">Qui sommes-nous ?</p><h2>Un point de départ<br /><em>pour ton avenir.</em></h2></div><div className="mission-list"><article><span>01</span><h3>Comprendre</h3><p>Voir clairement les démarches et les possibilités qui correspondent à ton profil.</p></article><article><span>02</span><h3>Choisir</h3><p>Construire un projet d’études cohérent avec ta spécialité et tes ambitions.</p></article><article><span>03</span><h3>Avancer</h3><p>Obtenir une aide adaptée lorsque tu en as besoin, au bon moment.</p></article></div></section>
+    <section className="start-banner shell"><div><p className="section-label">Ton parcours commence ici</p><h2>Prêt(e) à faire avancer ton rêve ?</h2></div><button className="primary-button" type="button" onClick={onStart}>Remplir le formulaire →</button></section>
+    <footer><Brand /><span>© {new Date().getFullYear()} Fransition</span></footer>
+  </main>;
 }
 
 function StepHeading({ title, description }: { title: string; description: string }) { return <div className="step-heading"><p className="section-label">{title}</p><h1 id="form-title">{description}</h1></div>; }

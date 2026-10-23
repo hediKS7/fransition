@@ -4,9 +4,30 @@
   top: 68px;
 }
 
+.journey-plane {
+  position: absolute;
+  z-index: 4;
+  right: 76px;
+  bottom: 73px;
+  color: var(--coral);
+  filter: drop-shadow(0 3px 0 rgba(32, 47, 100, .12));
+  transform: rotate(-17deg);
+  animation: plane-glide 3.8s ease-in-out infinite;
+}
+
+@keyframes plane-glide {
+  50% { transform: translate(6px, -5px) rotate(-17deg); }
+}
+
 @media (max-width: 800px) {
   .mascot-image {
     width: 220px;
     top: 50px;
+  }
+
+  .journey-plane {
+    right: 58px;
+    bottom: 65px;
+    width: 25px;
   }
 }
