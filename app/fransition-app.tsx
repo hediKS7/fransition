@@ -15,7 +15,8 @@ type FormState = {
 const initialForm: FormState = { firstName: "", lastName: "", email: "", phone: "", city: "", studyYear: "", school: "", speciality: "", desiredProgram: "", desiredStart: "", motivation: "", processStage: "", helpTopics: [], helpDetails: "", appointmentPreference: "", consent: false };
 const steps = ["Ton profil", "Ton parcours", "Ton projet", "Tes démarches", "Ton aide"];
 const helpOptions = ["Choisir ma formation", "Comprendre Campus France", "Préparer mon dossier", "CV ou lettre de motivation", "Entretien Campus France", "Admission, logement ou visa"];
-const journeyPath = "M 88 495 C 250 550, 560 548, 713 495";
+const journeyLinePath = "M -25 440 C 20 460, 55 478, 88 467 C 250 525, 555 530, 713 467 C 755 450, 795 430, 835 415";
+const journeyFlightPath = "M 88 467 C 250 525, 555 530, 713 467";
 
 export default function FransitionApp() {
   const [view, setView] = useState<"home" | "form" | "success">("home");
@@ -68,9 +69,9 @@ function HomeScreen({ onStart }: { onStart: () => void }) {
         <span className="star star-yellow">✦</span><span className="star star-coral">✦</span>
         <Image className="mascot-image" src="/fransition-logo.png" alt="Logo original de la mascotte Fransition diplômée" width={1080} height={1080} priority />
         <svg className="journey-route" viewBox="0 0 800 538" preserveAspectRatio="none" aria-hidden="true">
-          <path className="journey-route-line" d={journeyPath} />
+          <path className="journey-route-line" d={journeyLinePath} />
           <g className="journey-plane" opacity="0">
-            <animateMotion dur="7s" repeatCount="indefinite" rotate="auto" path={journeyPath} />
+            <animateMotion dur="7s" repeatCount="indefinite" rotate="auto" path={journeyFlightPath} />
             <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.025;0.1;0.9;0.975;1" dur="7s" repeatCount="indefinite" />
             <g transform="translate(-21 -21)"><Plane size={42} strokeWidth={2.5} /></g>
           </g>

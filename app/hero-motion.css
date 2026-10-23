@@ -27,12 +27,19 @@
   filter: drop-shadow(0 3px 0 rgba(32, 47, 100, .12));
 }
 
+.hero-journey .country-tag {
+  bottom: 63px;
+}
+
 @media (max-width: 800px) {
   .mascot-image {
     width: 220px;
     top: 50px;
   }
 
+  .hero-journey .country-tag {
+    bottom: 36px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
