@@ -7,16 +7,44 @@
 .journey-plane {
   position: absolute;
   z-index: 4;
-  right: 76px;
-  bottom: 73px;
+  left: 72px;
+  bottom: 63px;
   color: var(--coral);
+  pointer-events: none;
   filter: drop-shadow(0 3px 0 rgba(32, 47, 100, .12));
-  transform: rotate(-17deg);
-  animation: plane-glide 3.8s ease-in-out infinite;
+  animation: plane-journey 7s cubic-bezier(.42, .03, .55, .96) infinite;
 }
 
-@keyframes plane-glide {
-  50% { transform: translate(6px, -5px) rotate(-17deg); }
+@keyframes plane-journey {
+  0% {
+    left: 72px;
+    bottom: 63px;
+    opacity: 0;
+    transform: translate(-10px, 7px) rotate(-2deg) scale(.75);
+  }
+  8% { opacity: 1; }
+  30% {
+    left: 31%;
+    bottom: 64px;
+    transform: rotate(-5deg) scale(1);
+  }
+  60% {
+    left: 57%;
+    bottom: 75px;
+    transform: rotate(-13deg) scale(1);
+  }
+  90% {
+    left: calc(100% - 116px);
+    bottom: 91px;
+    opacity: 1;
+    transform: rotate(-23deg) scale(1);
+  }
+  100% {
+    left: calc(100% - 110px);
+    bottom: 94px;
+    opacity: 0;
+    transform: translate(10px, -5px) rotate(-23deg) scale(.8);
+  }
 }
 
 @media (max-width: 800px) {
@@ -26,8 +54,15 @@
   }
 
   .journey-plane {
-    right: 58px;
-    bottom: 65px;
     width: 25px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .journey-plane {
+    left: calc(100% - 116px);
+    bottom: 91px;
+    animation: none;
+    transform: rotate(-23deg);
   }
 }
