@@ -1,0 +1,12 @@
+/* Direction « Voyage céleste » : le héros devient le point focal du voyage. */
+.mascot-image {
+  width: 300px;
+  top: 68px;
+}
+
+@media (max-width: 800px) {
+  .mascot-image {
+    width: 220px;
+    top: 50px;
+  }
+}

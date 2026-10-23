@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./hero-motion.css";
 
 export const metadata: Metadata = {
   title: "Fransition — Étudier en France depuis la Tunisie",
